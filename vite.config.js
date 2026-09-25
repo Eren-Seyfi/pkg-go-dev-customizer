@@ -12,9 +12,7 @@ export default defineConfig({
     minify: "terser",
     rollupOptions: {
       input: {
-        content: resolve(__dirname, "src/content/index.js"),
-        background: resolve(__dirname, "src/background/index.js"),
-        "gemini-bridge": resolve(__dirname, "src/gemini-bridge/index.js"),
+        main: resolve(__dirname, "src/main.js"),
       },
       output: {
         entryFileNames: "[name].js",
@@ -31,7 +29,7 @@ export default defineConfig({
           dest: ".",
         },
         {
-          src: "assets/icons",
+          src: "icons",
           dest: "assets",
         },
       ],

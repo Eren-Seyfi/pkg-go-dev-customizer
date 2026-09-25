@@ -1,15 +1,16 @@
 // ==========================================================================
 // GEMINI BRIDGE (gemini.google.com/app Sekmesinde Çalışan Köprü)
 // ==========================================================================
-
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === "EXECUTE_PROMPT") {
-    runGeminiQuery(request.prompt).then((answer) => {
-      sendResponse({ answer });
-    });
-    return true; // Asenkron yanıt döneceğimizi belirtir
-  }
-});
+export function initGeminiBridge() {
+  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === "EXECUTE_PROMPT") {
+      runGeminiQuery(request.prompt).then((answer) => {
+        sendResponse({ answer });
+      });
+      return true; // Asenkron yanıt döneceğimizi belirtir
+    }
+  });
+}
 
 async function runGeminiQuery(promptText) {
   // 1. Girdi kutusunu bul

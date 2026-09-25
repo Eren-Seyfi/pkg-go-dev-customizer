@@ -1,53 +1,52 @@
 // ==========================================================================
-// 1. SAĞ TIK (CONTEXT MENU) OLUŞTURMA VE DİNLENMESİ
+// BACKGROUND (SERVICE WORKER) BAŞLATMA
 // ==========================================================================
-
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.contextMenus.create({
-    id: "ask-gemini-selected",
-    title: "AI'ya Sor (Gemini): '%s'",
-    contexts: ["selection"],
+export function initBackground() {
+  // 1. SAĞ TIK (CONTEXT MENU) OLUŞTURMA VE DİNLENMESİ
+  chrome.runtime.onInstalled.addListener(() => {
+    chrome.contextMenus.create({
+      id: "ask-gemini-selected",
+      title: "AI'ya Sor (Gemini): '%s'",
+      contexts: ["selection"],
+    });
   });
-});
 
-chrome.contextMenus.onClicked.addListener((info, tab) => {
-  if (
-    info.menuItemId === "ask-gemini-selected" &&
-    info.selectionText &&
-    tab?.id
-  ) {
-    chrome.tabs
-      .sendMessage(tab.id, {
-        action: "SHOW_LOADING_MODAL",
-        prompt: info.selectionText,
-      })
-      .catch(() => {});
-
-    processGeminiQueryWithRetry(info.selectionText, 3, (response) => {
+  chrome.contextMenus.onClicked.addListener((info, tab) => {
+    if (
+      info.menuItemId === "ask-gemini-selected" &&
+      info.selectionText &&
+      tab?.id
+    ) {
       chrome.tabs
         .sendMessage(tab.id, {
-          action: "SHOW_RESULT_MODAL",
+          action: "SHOW_LOADING_MODAL",
           prompt: info.selectionText,
-          answer: response.answer || response.error,
         })
-        .catch((err) => {
-          console.error("Sonuç modalı gönderilemedi:", err);
-        });
-    });
-  }
-});
+        .catch(() => {});
 
-// ==========================================================================
-// 2. CONTENT SCRIPT MESAJ DİNLENMESİ
-// ==========================================================================
+      processGeminiQueryWithRetry(info.selectionText, 3, (response) => {
+        chrome.tabs
+          .sendMessage(tab.id, {
+            action: "SHOW_RESULT_MODAL",
+            prompt: info.selectionText,
+            answer: response.answer || response.error,
+          })
+          .catch((err) => {
+            console.error("Sonuç modalı gönderilemedi:", err);
+          });
+      });
+    }
+  });
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === "ASK_GEMINI") {
-    // 3 Defa Yeniden Deneme (Retry) Parametresi ile Çalıştır
-    processGeminiQueryWithRetry(request.prompt, 3, sendResponse);
-    return true; // Asenkron yanıt
-  }
-});
+  // 2. CONTENT SCRIPT MESAJ DİNLENMESİ
+  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === "ASK_GEMINI") {
+      // 3 Defa Yeniden Deneme (Retry) Parametresi ile Çalıştır
+      processGeminiQueryWithRetry(request.prompt, 3, sendResponse);
+      return true; // Asenkron yanıt
+    }
+  });
+}
 
 // ==========================================================================
 // 3. RETRY (YENİDEN DENEME) DESTEKLİ GEMINI İŞLEM AKIŞI

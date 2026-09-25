@@ -297,31 +297,41 @@ function initIndexAccordion() {
 // ==========================================================================
 // 4. EKLENTİ BAŞLATMA VE OBSERVER
 // ==========================================================================
-function initEklenti() {
-  highlightGoCode();
-  enhanceIndexTree();
-  initIndexAccordion();
-  initBottomSearchBar();
-}
+export function initContentScript() {
+  function initEklenti() {
+    highlightGoCode();
+    enhanceIndexTree();
+    initIndexAccordion();
+    initBottomSearchBar();
+  }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initEklenti);
-} else {
-  initEklenti();
-}
-
-let observerTimeout = null;
-const observer = new MutationObserver(() => {
-  if (observerTimeout) clearTimeout(observerTimeout);
-  observerTimeout = setTimeout(() => {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initEklenti);
+  } else {
     initEklenti();
-  }, 100);
-});
+  }
 
-observer.observe(document.body, {
-  childList: true,
-  subtree: true,
-});
+  let observerTimeout = null;
+  const observer = new MutationObserver(() => {
+    if (observerTimeout) clearTimeout(observerTimeout);
+    observerTimeout = setTimeout(() => {
+      initEklenti();
+    }, 100);
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+  });
+
+  chrome.runtime.onMessage.addListener((request) => {
+    if (request.action === "SHOW_LOADING_MODAL") {
+      showModal(request.prompt, "Gemini yanıtı bekleniyor... ⏳");
+    } else if (request.action === "SHOW_RESULT_MODAL") {
+      showModal(request.prompt, request.answer);
+    }
+  });
+}
 
 // ==========================================================================
 // 5. SAYFA ALTI SABİT AI ARAMA ÇUBUĞU VE MODAL
@@ -376,14 +386,6 @@ function initBottomSearchBar() {
     }, 10);
   });
 }
-
-chrome.runtime.onMessage.addListener((request) => {
-  if (request.action === "SHOW_LOADING_MODAL") {
-    showModal(request.prompt, "Gemini yanıtı bekleniyor... ⏳");
-  } else if (request.action === "SHOW_RESULT_MODAL") {
-    showModal(request.prompt, request.answer);
-  }
-});
 
 function startGeminiAsk(promptText) {
   showModal(promptText, "Gemini yanıt üretiyor, lütfen bekleyin... ⏳");
