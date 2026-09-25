@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "pkg.go.dev Code & Index Customizer",
+  "version": "1.1.0",
+  "description": "pkg.go.dev üzerindeki pre kod bloklarını renklendirir, içindekiler alanını ağaç modeline dönüştürür ve seçili metinleri Gemini ile arka planda sorgulama imkanı sağlar.",
+  "permissions": ["activeTab", "scripting", "tabs", "contextMenus"],
+  "host_permissions": ["https://gemini.google.com/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://pkg.go.dev/*"],
+      "css": ["assets/content.css"],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": ["https://gemini.google.com/app*"],
+      "js": ["gemini-bridge.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

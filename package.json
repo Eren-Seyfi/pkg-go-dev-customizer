@@ -1,0 +1,20 @@
+{
+  "name": "pkg-go-dev-customizer",
+  "version": "1.1.0",
+  "description": "`pkg.go.dev` üzerindeki Go dokümantasyon deneyimini iyileştiren, kod bloklarını modern temalarla renklendiren, canlı düzenlenebilir kod editörü sunan ve Gemini AI entegrasyonu ile dokümantasyonu etkileşimli hale getiren Chrome eklentisi.",
+  "main": "background.js",
+  "scripts": {
+    "dev": "vite build --watch",
+    "build": "vite build"
+  },
+  "keywords": [],
+  "type": "module",
+  "devDependencies": {
+    "terser": "^5.51.2",
+    "vite": "^8.3.1",
+    "vite-plugin-static-copy": "^4.1.1"
+  },
+  "dependencies": {
+    "prismjs": "^1.30.0"
+  }
+}
